@@ -138,9 +138,11 @@ class Trajectron(object):
                 z_mode=False,
                 gmm_mode=False,
                 full_dist=True,
-                all_z_sep=False):
+                all_z_sep=False,
+                output_dists=False):
 
         predictions_dict = {}
+        dists_dict = {}
         for node_type in self.env.NodeType:
             if node_type not in self.pred_state:
                 continue
@@ -170,7 +172,7 @@ class Trajectron(object):
                 map = map.to(self.device)
 
             # Run forward pass
-            predictions = model.predict(inputs=x,
+            predictions, dists = model.predict(inputs=x,
                                         inputs_st=x_st_t,
                                         first_history_indices=first_history_index,
                                         neighbors=neighbors_data_st,
@@ -182,7 +184,8 @@ class Trajectron(object):
                                         z_mode=z_mode,
                                         gmm_mode=gmm_mode,
                                         full_dist=full_dist,
-                                        all_z_sep=all_z_sep)
+                                        all_z_sep=all_z_sep,
+                                        output_dists=output_dists)
 
             predictions_np = predictions.cpu().detach().numpy()
 
@@ -191,5 +194,12 @@ class Trajectron(object):
                 if ts not in predictions_dict.keys():
                     predictions_dict[ts] = dict()
                 predictions_dict[ts][nodes[i]] = np.transpose(predictions_np[:, [i]], (1, 0, 2, 3))
+
+                if ts not in dists_dict.keys():
+                    dists_dict[ts] = dict()
+                dists_dict[ts][nodes[i]] = dists
+
+        if output_dists:
+            return dists_dict, predictions_dict
 
         return predictions_dict

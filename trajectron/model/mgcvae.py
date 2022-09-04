@@ -1094,7 +1094,8 @@ class MultimodalGenerativeCVAE(object):
                 z_mode=False,
                 gmm_mode=False,
                 full_dist=True,
-                all_z_sep=False):
+                all_z_sep=False,
+                output_dists=False):
         """
         Predicts the future of a batch of nodes.
 
@@ -1134,10 +1135,13 @@ class MultimodalGenerativeCVAE(object):
                                                               full_dist=full_dist,
                                                               all_z_sep=all_z_sep)
 
-        _, our_sampled_future = self.p_y_xz(mode, x, x_nr_t, y_r, n_s_t0, z,
+        y_dist, our_sampled_future = self.p_y_xz(mode, x, x_nr_t, y_r, n_s_t0, z,
                                             prediction_horizon,
                                             num_samples,
                                             num_components,
                                             gmm_mode)
 
-        return our_sampled_future
+        if output_dists:
+            return our_sampled_future, y_dist
+
+        return our_sampled_future, None

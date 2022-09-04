@@ -7,18 +7,18 @@ import visualization
 from matplotlib import pyplot as plt
 
 
-def compute_ade(predicted_trajs, gt_traj):
+def compute_ade_pt(predicted_trajs, gt_traj):
     error = np.linalg.norm(predicted_trajs - gt_traj, axis=-1)
     ade = np.mean(error, axis=-1)
     return ade.flatten()
 
 
-def compute_fde(predicted_trajs, gt_traj):
+def compute_fde_pt(predicted_trajs, gt_traj):
     final_error = np.linalg.norm(predicted_trajs[:, :, -1] - gt_traj[-1], axis=-1)
     return final_error.flatten()
 
 
-def compute_kde_nll(predicted_trajs, gt_traj):
+def compute_nll_pt(predicted_trajs, gt_traj):
     kde_ll = 0.
     log_pdf_lower_bound = -20
     num_timesteps = gt_traj.shape[0]

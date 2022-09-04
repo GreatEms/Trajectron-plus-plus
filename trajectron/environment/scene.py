@@ -10,6 +10,8 @@ class Scene(object):
         self.timesteps = timesteps
         self.dt = dt
         self.name = name
+        self.x_min = 0
+        self.y_min = 0
 
         self.nodes = []
 
