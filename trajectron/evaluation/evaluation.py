@@ -1,3 +1,4 @@
+import torch
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
 from scipy.ndimage import binary_dilation
@@ -10,15 +11,16 @@ from matplotlib import pyplot as plt
 def compute_ade_pt(predicted_trajs, gt_traj):
     error = np.linalg.norm(predicted_trajs - gt_traj, axis=-1)
     ade = np.mean(error, axis=-1)
-    return ade.flatten()
+    return torch.from_numpy(ade.flatten())
 
 
 def compute_fde_pt(predicted_trajs, gt_traj):
     final_error = np.linalg.norm(predicted_trajs[:, :, -1] - gt_traj[-1], axis=-1)
-    return final_error.flatten()
+    return torch.from_numpy(final_error.flatten())
 
 
-def compute_nll_pt(predicted_trajs, gt_traj):
+def compute_nll_pt(gmm, gt_traj):
+    predicted_trajs = gmm.mus
     kde_ll = 0.
     log_pdf_lower_bound = -20
     num_timesteps = gt_traj.shape[0]
@@ -27,13 +29,13 @@ def compute_nll_pt(predicted_trajs, gt_traj):
     for batch_num in range(num_batches):
         for timestep in range(num_timesteps):
             try:
-                kde = gaussian_kde(predicted_trajs[batch_num, :, timestep].T)
+                kde = gaussian_kde(predicted_trajs[batch_num, 0, timestep].T)
                 pdf = np.clip(kde.logpdf(gt_traj[timestep].T), a_min=log_pdf_lower_bound, a_max=None)[0]
                 kde_ll += pdf / (num_timesteps * num_batches)
             except np.linalg.LinAlgError:
                 kde_ll = np.nan
 
-    return -kde_ll
+    return torch.tensor([-kde_ll]), torch.tensor([-kde_ll])
 
 
 def compute_obs_violations(predicted_trajs, map):

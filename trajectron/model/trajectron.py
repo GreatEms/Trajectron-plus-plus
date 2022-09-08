@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from model.components import GMM2D
 from model.mgcvae import MultimodalGenerativeCVAE
 from model.dataset import get_timesteps_data, restore
 
@@ -197,7 +198,10 @@ class Trajectron(object):
 
                 if ts not in dists_dict.keys():
                     dists_dict[ts] = dict()
-                dists_dict[ts][nodes[i]] = dists
+                dists_dict[ts][nodes[i]] = GMM2D(dists.log_pis[:,i,:,:].unsqueeze(1).transpose(),
+                                                 dists.mus[:, i, :, :].unsqueeze(1),
+                                                 dists.log_sigmas[:, i, :, :].unsqueeze(1),
+                                                 dists.corrs[:, i, :, :].unsqueeze(1))
 
         if output_dists:
             return dists_dict, predictions_dict
