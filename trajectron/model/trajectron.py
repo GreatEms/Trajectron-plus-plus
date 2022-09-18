@@ -198,10 +198,12 @@ class Trajectron(object):
 
                 if ts not in dists_dict.keys():
                     dists_dict[ts] = dict()
-                dists_dict[ts][nodes[i]] = GMM2D(dists.log_pis[:,i,:,:].unsqueeze(1).transpose(),
-                                                 dists.mus[:, i, :, :].unsqueeze(1),
-                                                 dists.log_sigmas[:, i, :, :].unsqueeze(1),
-                                                 dists.corrs[:, i, :, :].unsqueeze(1))
+
+                batch, _time_step, ph, num_components = dists.log_pis.shape
+                dists_dict[ts][nodes[i]] = GMM2D(dists.log_pis[:,i,:,:],
+                                                 dists.mus[:, i, :, :].reshape(batch, ph, num_components * 2),
+                                                 dists.log_sigmas[:, i, :, :].reshape(batch, ph, num_components * 2),
+                                                 dists.corrs[:, i, :, :])
 
         if output_dists:
             return dists_dict, predictions_dict

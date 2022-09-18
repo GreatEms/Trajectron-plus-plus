@@ -15,7 +15,7 @@ def compute_ade_pt(predicted_trajs, gt_traj):
 
 
 def compute_fde_pt(predicted_trajs, gt_traj):
-    final_error = np.linalg.norm(predicted_trajs[:, :, -1] - gt_traj[-1], axis=-1)
+    final_error = np.linalg.norm(predicted_trajs[:, :, -1] - gt_traj[:, -1, :], axis=-1)
     return torch.from_numpy(final_error.flatten())
 
 

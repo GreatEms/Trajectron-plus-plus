@@ -250,6 +250,7 @@ def process_scene(ns_scene, env, nusc, data_path):
     data['y'] = data['y'] - y_min
 
     scene = Scene(timesteps=max_timesteps + 1, dt=dt, name=sample_token, aug_func=augment)
+    scene.description = str(scene_id)
     scene.x_min = x_min
     scene.y_min = y_min
 
